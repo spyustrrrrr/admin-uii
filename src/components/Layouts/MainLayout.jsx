@@ -6,7 +6,11 @@ import Icon from "../Elements/Icon";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../../context/themeContext";
 import { AuthContext } from "../../context/authContext";
+import { DarkModeContext } from "../../context/darkModeContext";
+import DarkModeToggle from "../Elements/DarkModeToggle";
 import { logoutService } from "../../services/authService";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function MainLayout(props) {
   const { children } = props;
@@ -20,6 +24,8 @@ function MainLayout(props) {
 ];
 
 const {theme, setTheme} = useContext(ThemeContext);
+  const { isDarkMode } = useContext(DarkModeContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const menu = [
     { id: 1, name: "Overview", icon: <Icon.Overview />, link: "/" },
@@ -33,6 +39,7 @@ const {theme, setTheme} = useContext(ThemeContext);
 
   const { user, logout } = useContext(AuthContext);
 	  const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await logoutService();
       logout(); 
@@ -41,12 +48,14 @@ const {theme, setTheme} = useContext(ThemeContext);
       if (err.status === 401) {
         logout();
       }
+    } finally {
+      setIsLoggingOut(false);
     }
   };
   
   return (
     <>
-	    <div className={`flex min-h-screen ${theme.name}`}>
+	    <div className={`flex min-h-screen ${theme.name} ${isDarkMode ? "dark-mode" : ""}`}>
             <aside className="bg-defaultBlack w-28 sm:w-64 text-special-bg2 flex flex-col justify-between px-7 py-12">
                 <div>
 			        <div className="mb-10">
@@ -117,8 +126,20 @@ const {theme, setTheme} = useContext(ThemeContext);
                         <Input backgroundColor="bg-white" border="border-white" />
                     </div>
                 </div>
+                <div className="px-6 pt-3 flex justify-end">
+                    <DarkModeToggle />
+                </div>
                 <main className="flex-1 px-6 py-4">{children}</main>
             </div>
+            <Backdrop
+                sx={{ color: "#fff", zIndex: (t) => t.zIndex.drawer + 1 }}
+                open={isLoggingOut}
+            >
+                <div className="flex flex-col items-center">
+                    <CircularProgress color="inherit" />
+                    <div className="mt-3">Logging Out</div>
+                </div>
+            </Backdrop>
         </div>
     </>
   );

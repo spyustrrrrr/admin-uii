@@ -12,7 +12,7 @@ function GaugePointer(props) {
   const { valueAngle, outerRadius, cx, cy } = useGaugeState();
 
   if (valueAngle === null) {
-    // No value to display
+    
     return null;
   }
 

@@ -9,6 +9,8 @@ export const loginService = async (email, password) => {
       { email, password }, 
     );
 
+       console.log("Login Response:", response.data);
+
     return response.data;
   } catch (error) {
     throw error.response?.data || { msg: "Login gagal" };
